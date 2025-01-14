@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>聊天软件 - 添加好友</title>
+</head>
+
+<body>
+    <h1>添加好友</h1>
+    <form method="post">
+        <label for="friend_id">输入好友ID：</label>
+        <input type="text" id="friend_id" name="friend_id" required>
+        <input type="submit" value="添加好友">
+    </form>
+    <p><a href="{{ url_for('chat_room') }}">返回聊天室</a></p>
+</body>
+
+</html>

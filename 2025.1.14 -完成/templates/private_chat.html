@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>私聊 - {{ friend_id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #chat_messages {
+            height: 300px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            padding: 10px;
+            display: flex;
+            flex-direction: column-reverse; /* 使消息从底部开始显示 */
+        }
+        form {
+            margin-top: 10px;
+        }
+     .message {
+            background-color: #e1f0ff;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 5px;
+            max-width: 80%;
+        }
+     .your-message {
+            align-self: flex-end;
+            background-color: #d0f5c9;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        /* 用于检测滚动到底部的占位元素 */
+        #loadMoreIndicator {
+            height: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>与 {{ friend_id }} 的私聊</h1>
+    <div id="chat_messages"></div>
+    <!-- 用于检测滚动到底部的占位元素 -->
+    <div id="loadMoreIndicator"></div>
+    <form id="chat_form" method="post">
+        <input type="text" id="message_text" name="message_text" required>
+        <input type="submit" value="发送">
+    </form>
+    <script>
+        const chatMessages = document.getElementById('chat_messages');
+        const chatForm = document.getElementById('chat_form');
+        const messageTextInput = document.getElementById('message_text');
+        const friendId = "{{ friend_id }}";
+        const loadMoreIndicator = document.getElementById('loadMoreIndicator');
+        let messageIndex = 0;
+        const messagesPerLoad = 10;
+
+        // 阻止表单默认提交行为，并发送私聊消息
+        chatForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const messageText = messageTextInput.value;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/send_private_message');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            const data = {
+                "receiver_id": friendId,
+                "message": messageText
+            };
+            const jsonData = JSON.stringify(data);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    messageTextInput.value = '';
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message', 'your-message');
+                    messageElement.textContent = `你: ${messageText}`;
+                    chatMessages.insertBefore(messageElement, chatMessages.firstChild); // 插入到顶部
+                } else if (xhr.readyState === 4 && xhr.status >= 400) {
+                    console.error('发送消息失败，状态码：', xhr.status);
+                }
+            };
+            xhr.send(jsonData);
+        });
+
+        // 加载初始的 10 条消息
+        function loadInitialMessages() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `/get_private_messages?friend_id=${friendId}&start=${messageIndex}&limit=${messagesPerLoad}`);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    try {
+                        const messages = JSON.parse(xhr.responseText);
+                        displayMessages(messages);
+                    } catch (error) {
+                        console.error('解析消息数据时出错：', error);
+                    }
+                } else if (xhr.readyState === 4 && xhr.status >= 400) {
+                    console.error('获取消息失败，状态码：', xhr.status);
+                }
+            };
+            xhr.send();
+        }
+
+        // 加载更多消息
+        function loadMoreMessages() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `/get_private_messages?friend_id=${friendId}&start=${messageIndex}&limit=${messagesPerLoad}`);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    try {
+                        const newMessages = JSON.parse(xhr.responseText);
+                        if (newMessages.length === 0) {
+                            // 如果没有更多消息，移除监听器
+                            observer.unobserve(loadMoreIndicator);
+                        } else {
+                            displayMessages(newMessages);
+                            messageIndex += messagesPerLoad;
+                        }
+                    } catch (error) {
+                        console.error('解析新消息数据时出错：', error);
+                    }
+                } else if (xhr.readyState === 4 && xhr.status >= 400) {
+                    console.error('获取消息失败，状态码：', xhr.status);
+                }
+            };
+            xhr.send();
+        }
+
+        // 显示消息的通用函数
+        function displayMessages(messages) {
+            messages.forEach(function (message) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                if (message.sender_id === parseInt('{{ user_id }}')) {
+                    messageElement.classList.add('your-message');
+                    messageElement.textContent = `你: ${message.message_text}`;
+                } else {
+                    messageElement.textContent = `${message.sender_id}: ${message.message_text}`;
+                }
+                chatMessages.insertBefore(messageElement, chatMessages.firstChild); // 插入到顶部
+            });
+        }
+
+        // 使用 IntersectionObserver 检测是否滚动到了底部
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                loadMoreMessages();
+            }
+        });
+
+        observer.observe(loadMoreIndicator);
+
+        // 加载初始消息
+        loadInitialMessages();
+
+        // 每10秒刷新一次消息
+        setInterval(() => {
+            loadInitialMessages();
+        }, 10000);
+    </script>
+</body>
+</html>

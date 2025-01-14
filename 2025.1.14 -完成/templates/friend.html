@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Private Messages</title>
+    <script>
+        async function sendPrivateMessage() {
+            const receiverId = document.getElementById('receiver_id').value;
+            const message = document.getElementById('message').value;
+            const response = await fetch('/send_private_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    receiver_id: receiverId,
+                    message: message
+                })
+            });
+            const data = await response.json();
+            if (data.status === "success") {
+                alert("消息发送成功");
+            } else {
+                alert(data.message);
+            }
+        }
+
+        async function getPrivateMessages() {
+            const friendId = document.getElementById('friend_id').value;
+            const response = await fetch(`/get_private_messages?friend_id=${friendId}`);
+            const data = await response.json();
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = '';
+            data.forEach(message => {
+                const messageElement = document.createElement('p');
+                messageElement.textContent = `${message.sender_id} -> ${message.receiver_id}: ${message.message_text} (${message.timestamp})`;
+                messagesDiv.appendChild(messageElement);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Private Messages</h1>
+    <input type="text" id="receiver_id" placeholder="Friend's User ID">
+    <input type="text" id="message" placeholder="Message">
+    <button onclick="sendPrivateMessage()">Send Message</button>
+    <br>
+    <input type="text" id="friend_id" placeholder="Friend's User ID">
+    <button onclick="getPrivateMessages()">Get Messages</button>
+    <div id="messages"></div>
+</body>
+</html>

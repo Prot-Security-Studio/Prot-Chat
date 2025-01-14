@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>聊天软件 - 注册</title>
+</head>
+
+<body>
+    <h1>注册</h1>
+    <form method="post" enctype="multipart/form-data">
+        <label for="username">用户名：</label>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">密码：</label>
+        <input type="password" id="password" name="password" required><br>
+        <label for="face_recording_method">人脸录入方式：</label>
+        <select id="face_recording_method" name="face_recording_method" onchange="toggleFaceImageUpload()">
+            <option value="no">不录入人脸</option>
+            <option value="upload">上传图片</option>
+        </select><br>
+        <div id="face_image_upload_area" style="display: none;">
+            <label for="face_image_1">上传人脸图片1：</label>
+            <input type="file" id="face_image_1" name="face_image_1" accept="image/jpeg,image/png"><br>
+            <label for="face_image_2">上传人脸图片2：</label>
+            <input type="file" id="face_image_2" name="face_image_2" accept="image/jpeg,image/png"><br>
+            <!-- 其他人脸图片上传字段 -->
+        </div>
+        <input type="submit" value="注册">
+    </form>
+
+    <script>
+        function toggleFaceImageUpload() {
+            const selectedMethod = document.getElementById('face_recording_method').value;
+            const uploadArea = document.getElementById('face_image_upload_area');
+            if (selectedMethod === 'upload') {
+                uploadArea.style.display = 'block';
+            } else {
+                uploadArea.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>

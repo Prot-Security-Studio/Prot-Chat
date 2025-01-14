@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>聊天软件 - 登录</title>
+</head>
+
+<body>
+    <h1>登录</h1>
+    <form method="post" enctype="multipart/form-data">
+        <label for="username">用户名：</label>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">密码：</label>
+        <input type="password" id="password" name="password" required><br>
+        <label for="login_method">登录方式：</label>
+        <select id="login_method" name="login_method" onchange="toggleLoginOptions()">
+            <option value="password">密码登录</option>
+            <option value="face">人脸登录</option>
+        </select><br>
+        <div id="face_login_area" style="display: none;">
+            <label for="face_image">上传人脸图片：</label>
+            <input type="file" id="face_image" name="face_image" accept="image/jpeg,image/png"><br>
+        </div>
+        <input type="submit" value="登录">
+    </form>
+    <p>还没有账号？<a href="{{ url_for('register') }}">注册</a></p>
+
+    <script>
+        function toggleLoginOptions() {
+            const selectedMethod = document.getElementById('login_method').value;
+            const faceLoginArea = document.getElementById('face_login_area');
+            const passwordInput = document.getElementById('password');
+            if (selectedMethod === 'face') {
+                faceLoginArea.style.display = 'block';
+                passwordInput.disabled = true;
+            } else {
+                faceLoginArea.style.display = 'none';
+                passwordInput.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

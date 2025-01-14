@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>聊天软件 - 设置</title>
+</head>
+
+<body>
+    <h1>设置</h1>
+    <form method="post">
+        <label for="theme">主题：</label>
+        <select id="theme" name="theme">
+            <option value="light">亮色主题</option>
+            <option value="dark">暗色主题</option>
+        </select><br>
+        <label for="face_login_enabled">启用人脸登录：</label>
+        <input type="checkbox" id="face_login_enabled" name="face_login_enabled"><br>
+        <input type="submit" value="保存设置">
+    </form>
+    <p><a href="{{ url_for('chat_room') }}">返回聊天室</a></p>
+</body>
+
+</html>

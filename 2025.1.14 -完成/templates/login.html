@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ProtChat - Login">
+    <meta name="keywords" content="ProtChat,ProtChat">
+    <!-- <meta name="author" content="您的名字"> -->
+
+    <!-- 设置页面主题色 -->
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- 设置页面图标 -->
+    <!-- <link rel="shortcut icon" href="./favicon.ico"> -->
+    <link rel="icon" href="./favicon.ico">
+
+    <!-- 设置页面标题 -->
+    <title>ProtChat - 登录</title>
+
+    <!-- 引入 MDUI CSS 文件 -->
+    <link rel="stylesheet" href="https://unpkg.com/mdui@1.0.2/dist/css/mdui.min.css" />
+
+</head>
+
+<body class="mdui-theme-layout-auto mdui-appbar-with-toolbar mdui-theme-primary-indigo mdui-theme-accent-blue">
+
+    <div class="mdui-drawer mdui-drawer-close" id="main-menu">
+        <div class="mdui-list" mdui-collapse="{accordion: true}">
+            <div class="mdui-collapse-item">
+                <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">
+                    <i class="mdui-list-item-icon mdui-icon material-icons">list</i>
+                    <!-- <div class="mdui-collapse-item-header mdui-list-item mdui-ripple">Home</div> -->
+                    <div class="mdui-list-item-content">内容</div>
+                    <i class="mdui-collapse-item-arrow mdui-icon material-icons">keyboard_arrow_down</i>
+                </div>
+
+                <div class="mdui-collapse-item-body mdui-list">
+                    <a href="./index.html" class="mdui-list-item mdui-ripple">首页</a>
+
+                </div>
+
+                <div class="mdui-collapse-item-body mdui-list">
+                    <a href="./register.html" class="mdui-list-item mdui-ripple">注册</a>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mdui-container">
+
+        <!-- 设置应用栏 -->
+        <div class="mdui-appbar mdui-appbar-fixed">
+            <div class="mdui-toolbar mdui-color-theme">
+                <span class="mdui-btn mdui-btn-icon mdui-ripple mdui-ripple-white"
+                    mdui-drawer="{target: '#main-menu', swipe: true}">
+                    <i class="mdui-icon material-icons">menu</i>
+                </span>
+                <a href="javascript:;" class="mdui-typo-headline">Prot Chat</a>
+                <a href="javascript:;" class="mdui-typo-title">登录</a>
+                <div class="mdui-toolbar-spacer"></div>
+                <!-- <a href="javascript:;" class="mdui-btn mdui-btn-icon">
+                <i class="mdui-icon material-icons">search</i>
+            </a>
+            <a href="javascript:;" class="mdui-btn mdui-btn-icon">
+                <i class="mdui-icon material-icons">refresh</i>
+            </a>
+            <a href="javascript:;" class="mdui-btn mdui-btn-icon">
+                <i class="mdui-icon material-icons">more_vert</i>
+            </a> -->
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="mdui-container-fluid">
+        <br>
+        <!-- <br> -->
+
+        <div class="mdui-card-content">
+
+            <div class="mdui-typo" style="height: auto !important;">
+                <!-- <h3>Title</h3> -->
+                <h1 class="title">ProtChat</h1>
+
+                <div class="mdui-row" style="display: flex; justify-content: center;">
+                    <!-- <div class="mdui-card"> -->
+                    <div class="mdui-card mdui-col-sm-6 mdui-center">
+
+                        <!-- 卡片的标题和副标题 -->
+                        <div class="mdui-card-primary">
+                            <div class="mdui-card-primary-title">登录</div>
+                            <div class="mdui-card-primary-subtitle">请登录</div>
+                        </div>
+
+                        <!-- 卡片的内容 -->
+                        <div class="mdui-card-content">
+
+                            <form method="post" enctype="multipart/form-data">
+
+                                <div class="mdui-textfield mdui-textfield-floating-label">
+                                    <label class="mdui-textfield-label" for="username">用户名</label>
+                                    <input class="mdui-textfield-input" id="username" name="username" required />
+                                </div>
+
+                                <div class="mdui-textfield mdui-textfield-floating-label">
+                                    <label class="mdui-textfield-label" for="password">密码</label>
+                                    <input class="mdui-textfield-input" type="password" id="password" name="password" required />
+                                </div>
+
+                                <label for="login_method">登录方式：</label>
+                                <select class="mdui-select" mdui-select="{position: 'bottom'}" id="login_method" name="login_method" onchange="toggleLoginOptions()">
+                                    <option value="password">密码登录</option>
+                                    <option value="face">人脸登录</option>
+                                </select>
+
+                                <br>
+
+                                <div id="face_login_area" style="display: none;">
+                                    <label for="face_image">上传人脸图片：</label>
+                                    <input type="file" id="face_image" name="face_image"
+                                        accept="image/jpeg,image/png"><br>
+                                </div>
+
+                                <br><br><br><br><br><br>
+
+                                <input class="mdui-btn" type="submit" value="登录" align="center">
+
+
+                            </form>
+
+
+                        </div>
+
+                        <!-- 卡片的按钮 -->
+                        <!-- <div class="mdui-card-actions">
+                        <button class="mdui-btn mdui-ripple">action 1</button>
+                        
+                        <button class="mdui-btn mdui-btn-icon mdui-float-right">
+                            <i class="mdui-icon material-icons">expand_more</i>
+                        </button>
+                    </div> -->
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JavaScript 部分 -->
+    <!-- 当调用此函数时,会打开一个新标签页,参数是 `url` -->
+    <script>
+        function openNewTab(url) {
+            window.open(url, '_blank');
+        }
+    </script>
+
+    <script>
+        function toggleLoginOptions() {
+            const selectedMethod = document.getElementById('login_method').value;
+            const faceLoginArea = document.getElementById('face_login_area');
+            const passwordInput = document.getElementById('password');
+            if (selectedMethod === 'face') {
+                faceLoginArea.style.display = 'block';
+                passwordInput.disabled = true;
+            } else {
+                faceLoginArea.style.display = 'none';
+                passwordInput.disabled = false;
+            }
+        }
+    </script>
+
+    <!-- 引入 MDUI JS 文件 -->
+    <script src="https://unpkg.com/mdui@1.0.2/dist/js/mdui.min.js"></script>
+
+</body>
+
+</html>

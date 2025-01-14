@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>聊天软件 - 聊天室</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        h2 {
+            color: #666;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #chat_messages {
+            height: 300px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        form {
+            margin-top: 10px;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        input[type="submit"],
+        button {
+            padding: 8px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover,
+        button:hover {
+            background-color: #0056b3;
+        }
+
+      .message-bubble {
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin: 5px;
+            max-width: 70%;
+            position: relative;
+        }
+
+      .self-message-bubble {
+            background-color: #007BFF;
+            color: white;
+            align-self: flex-end;
+        }
+
+      .other-message-bubble {
+            background-color: #fff;
+            color: #333;
+            align-self: flex-start;
+        }
+
+      .self-message-bubble::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: -10px;
+            transform: translateY(-50%);
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 10px solid #007BFF;
+        }
+
+      .other-message-bubble::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: -10px;
+            transform: translateY(-50%);
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 10px solid #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>欢迎来到聊天室，{{ username }}</h1>
+    <h2>好友列表：</h2>
+    <ul>
+        {% for friend_id in friend_list %}
+        <li><a href="{{ url_for('private_chat', friend_id=friend_id) }}">{{ friend_id }}</a></li>
+        {% endfor %}
+    </ul>
+    <h2>公共聊天室：</h2>
+    <div id="chat_messages"></div>
+    <form id="chat_form" method="post">
+        <input type="text" id="message_text" name="message_text" required>
+        <input type="submit" value="发送">
+    </form>
+
+    <button id="clearChatButton">清除聊天记录</button>
+
+    <script>
+        // 获取聊天消息显示区域和表单元素
+        const chatMessages = document.getElementById('chat_messages');
+        const chatForm = document.getElementById('chat_form');
+        const messageTextInput = document.getElementById('message_text');
+
+        // 阻止表单默认提交行为，以便通过AJAX发送消息
+        chatForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // 获取用户输入的消息内容
+            const messageText = messageTextInput.value;
+
+            // 创建一个新的XMLHttpRequest对象
+            const xhr = new XMLHttpRequest();
+
+            // 设置请求方法为POST，以及请求的URL（这里假设后端有一个接收消息的路由叫 /send_message）
+            xhr.open('POST', '/send_message');
+
+            // 设置请求头，表明发送的数据是JSON格式
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            // 将消息内容包装成一个对象，并转换为JSON字符串
+            const data = {
+                "message": messageText
+            };
+            const jsonData = JSON.stringify(data);
+
+            // 当请求状态改变时的回调函数
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    // 清空输入框
+                    messageTextInput.value = '';
+
+                    // 在聊天消息显示区域添加发送的消息
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message-bubble','self-message-bubble');
+                    messageElement.textContent = `你: ${messageText}`;
+                    chatMessages.appendChild(messageElement);
+                    chatMessages.scrollTop = 0;
+                } else if (xhr.readyState === 4 && xhr.status >= 400) {
+                    console.error('发送消息失败，状态码：', xhr.status);
+                }
+            };
+
+            // 发送请求，将JSON数据发送到后端
+            xhr.send(jsonData);
+        });
+
+        // 页面加载时获取并显示所有消息
+        window.addEventListener('load', function () {
+            fetchMessages();
+        });
+
+        // 每隔10秒获取新消息
+        setInterval(fetchMessages, 10000);
+
+        function fetchMessages() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/get_new_messages');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    try {
+                        const allMessages = JSON.parse(xhr.responseText);
+                        displayMessages(allMessages);
+                    } catch (error) {
+                        console.error('解析所有消息数据时出错：', error);
+                    }
+                } else if (xhr.readyState === 4 && xhr.status >= 400) {
+                    console.error('获取所有消息失败，状态码：', xhr.status);
+                }
+            };
+            xhr.send();
+        }
+
+        // 显示消息的通用函数
+        function displayMessages(messages) {
+            const currentUserId = parseInt('{{ user_id }}');
+            messages.forEach(function (message) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message-bubble');
+                if (message.sender_id === currentUserId) {
+                    messageElement.classList.add('self-message-bubble');
+                    messageElement.textContent = `你: ${message.message_text}`;
+                } else {
+                    messageElement.classList.add('other-message-bubble');
+                    const senderUsername = getSenderUsername(message.sender_id);
+                    senderUsername.then(username => {
+                        messageElement.textContent = `${username}: ${message.message_text}`;
+                        chatMessages.appendChild(messageElement);
+                        chatMessages.scrollTop = 0;
+                    }).catch(error => {
+                        console.error('获取发送者用户名失败：', error);
+                    });
+                }
+            });
+        }
+
+        // 获取发送者用户名的函数
+        function getSenderUsername(sender_id) {
+            return new Promise((resolve, reject) => {
+                const xhrUser = new XMLHttpRequest();
+                xhrUser.open('GET', `/get_username_by_id?user_id=${sender_id}`);
+                xhrUser.onreadystatechange = function () {
+                    if (xhrUser.readyState === 4 && xhrUser.status === 200) {
+                        resolve(xhrUser.responseText);
+                    } else {
+                        reject(new Error('获取发送者用户名失败'));
+                    }
+                };
+                xhrUser.send();
+            });
+        }
+
+        // 清除聊天记录按钮的点击事件处理函数
+        document.getElementById('clearChatButton').addEventListener('click', function () {
+            // 清空聊天消息显示区域
+            chatMessages.innerHTML = '';
+        });
+    </script>
+</body>
+
+</html>
